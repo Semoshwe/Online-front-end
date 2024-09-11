@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -37,6 +38,7 @@ const Search = styled('div')(({ theme }) => ({
     width: 'auto',
   },
 }));
+
 
 // Styles for the Search Icon Wrapper
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -83,11 +85,11 @@ export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
-
+  //const navigate = useNavigate();
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget);
+  const handleProfileMenuOpen = (event) => setAnchorEl(event.currentTarget), navigate=('/login');
   const handleMobileMenuClose = () => setMobileMoreAnchorEl(null);
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -111,7 +113,7 @@ export default function PrimarySearchAppBar() {
           open={isMenuOpen}
           onClose={handleMenuClose}
       >
-        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+        <MenuItem component={Link} to="/Login" onClick={handleMenuClose}>Profile</MenuItem>
         <MenuItem onClick={handleMenuClose}>My account</MenuItem>
       </Menu>
   );
