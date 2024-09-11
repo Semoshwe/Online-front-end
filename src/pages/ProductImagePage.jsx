@@ -7,6 +7,10 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import ProductImageCreate from "../inputs/ProductImageCreate.jsx";
+import ProductImageRead from "../inputs/ProductImageRead.jsx";
+import ProductImageUpdate from "../inputs/ProductImageUpdate.jsx";
+import ProductImageGetAll from "../inputs/ProductImageGetAll.jsx";
 
 export default ProductImagePage;
 
@@ -44,7 +48,10 @@ function ProductImagePage(){
                             <Tab label="Get All" />
                         </Tabs>
                         <CardContent>
-
+                            {value === 0 && <ProductImageCreate />}
+                            {value === 1 && <ProductImageRead />}
+                            {value === 2 && <ProductImageUpdate />}
+                            {value === 3 && <ProductImageGetAll />}
                         </CardContent>
                     </Card>
                 </Box>

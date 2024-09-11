@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 
+import PropTypes from 'prop-types'; // Added missing import
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
@@ -20,7 +21,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-// Function component to display a customized tooltip/dialog
+// Function component to display a customized dialog
 export default function CustomizedDialogs({ open, address, handleClose }) {
   return (
     <BootstrapDialog
@@ -92,7 +93,7 @@ export default function CustomizedDialogs({ open, address, handleClose }) {
 }
 
 // Prop types validation
-/* CustomizedDialogs.propTypes = {
+CustomizedDialogs.propTypes = {
   open: PropTypes.bool.isRequired,
   address: PropTypes.shape({
     addressID: PropTypes.string,
@@ -100,12 +101,12 @@ export default function CustomizedDialogs({ open, address, handleClose }) {
     city: PropTypes.string,
     province: PropTypes.string,
     zipCode: PropTypes.string,
-    user: PropTypes.shape({
+    /* user: PropTypes.shape({
       userID: PropTypes.string,
       firstName: PropTypes.string,
       lastName: PropTypes.string,
       email: PropTypes.string,
-    }),
+    }), */
   }),
   handleClose: PropTypes.func.isRequired,
-} ;*/
+};

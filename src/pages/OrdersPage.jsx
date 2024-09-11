@@ -26,7 +26,7 @@ function OrdersPage() {
       <Container disableGutters maxWidth={false} sx={{ padding: 0 }}>
         <Box sx={{ bgcolor: '#cfe8fc', height: '100vh', padding: 0, margin: 0 }}>
           <Typography align="center" variant="h1" sx={{ margin: 0, padding: 0 }}>
-            Find Orders By
+            Find Orders
           </Typography>
           <Card sx={{ margin: 0, padding: 0 }} no-gutters>
             <Tabs

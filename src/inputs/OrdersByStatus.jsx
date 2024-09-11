@@ -31,7 +31,7 @@ export default function FindOrdersByStatus() {
   };
 
   return (
-    <Box sx={{ width: '100vh', padding: 2 }}>
+    <Box sx={{ width: '100%', padding: 2 }}>
       <h2>Find Orders by Status</h2>
       <TextField
         label="Status"

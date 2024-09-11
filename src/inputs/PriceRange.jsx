@@ -38,8 +38,8 @@ export default function PriceRange() {
 
 
   return (
-    <Box  sx={{ width: '100vh', padding: 2,  margin: 2  }}>
-      <h2>Find Orders by Price Greater </h2>
+    <Box  sx={{ width: '90%', padding: 2,  margin: 2  }}>
+      <h2>Price Greater Than </h2>
       <Slider
         step={10}
         value={val}

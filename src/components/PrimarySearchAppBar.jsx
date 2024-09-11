@@ -19,6 +19,7 @@ import DrawerComponent from './DrawerComponent';
 import Favorite from '@mui/icons-material/Favorite';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import ArrowDropDown from '@mui/icons-material/ArrowDropDown';
 
 // Styles for the Search component
 const Search = styled('div')(({ theme }) => ({
@@ -101,18 +102,18 @@ export default function PrimarySearchAppBar() {
   const mobileMenuId = 'primary-search-account-menu-mobile';
 
   const renderMenu = (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      id={menuId}
-      keepMounted
-      transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-      open={isMenuOpen}
-      onClose={handleMenuClose}
-    >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-    </Menu>
+      <Menu
+          anchorEl={anchorEl}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+          id={menuId}
+          keepMounted
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          open={isMenuOpen}
+          onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+        <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      </Menu>
   );
 
   // FOR NAV categories 
@@ -171,141 +172,150 @@ export default function PrimarySearchAppBar() {
   );
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <DrawerComponent
-        open={drawerOpen}
-        handleDrawerOpen={handleDrawerOpen}
-        handleDrawerClose={handleDrawerClose}
-      />
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen} // Open drawer on click
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            onClick={() => window.location.href = '/'}
-            sx={{ display: { xs: 'none', sm: 'block' } }}
-          >
-            Capstone Store
-          </Typography>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-            />
-          </Search>
-
-          {/*Add Men, Women, and Kids as navigation links in the AppBar*/}
-          <Box sx={{ display: 'inherit', justifyContent: 'center', alignItems: 'center', ml: 38 }}>
-            <Button
-              color="inherit"
-              sx={{ mx: 5 }}
-              onClick={(event) => handleNavMenuOpen(event, setAnchorElMen)}
-            >
-              Men
-            </Button>
-            <Menu
-              anchorEl={anchorElMen}
-              open={Boolean(anchorElMen)}
-              onClose={() => handleNavMenuClose(setAnchorElMen)}
-            >
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Jackets</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Jeans</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Shoes</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Accessories</MenuItem>
-            </Menu>
-
-            <Button
-              color="inherit"
-              sx={{ mx: 5 }}
-              onClick={(event) => handleNavMenuOpen(event, setAnchorElWomen)}
-            >
-              Women
-            </Button>
-            <Menu
-              anchorEl={anchorElWomen}
-              open={Boolean(anchorElWomen)}
-              onClose={() => handleNavMenuClose(setAnchorElWomen)}
-            >
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Jackets</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Jeans</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Shoes</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Accessories</MenuItem>
-            </Menu>
-
-            <Button
-              color="inherit"
-              sx={{ mx: 5 }}
-              onClick={(event) => handleNavMenuOpen(event, setAnchorElKids)}
-            >
-              Kids
-            </Button>
-            <Menu
-              anchorEl={anchorElKids}
-              open={Boolean(anchorElKids)}
-              onClose={() => handleNavMenuClose(setAnchorElKids)}
-            >
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Jackets</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Jeans</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Shoes</MenuItem>
-              <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Accessories</MenuItem>
-            </Menu>
-          </Box>
-
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-            <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="error">
-                <StyledFavoriteIcon /> {/* Use the styled icon with a red background */}
-              </Badge>
-            </IconButton>
-            <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+      <Box sx={{ flexGrow: 1 }}>
+        <DrawerComponent
+            open={drawerOpen}
+            handleDrawerOpen={handleDrawerOpen}
+            handleDrawerClose={handleDrawerClose}
+        />
+        <AppBar position="static">
+          <Toolbar>
             <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
+                size="large"
+                edge="start"
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen} // Open drawer on click
+                sx={{ mr: 2 }}
             >
-              <AccountCircle />
+              <MenuIcon />
             </IconButton>
-          </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="show more"
-              aria-controls={mobileMenuId}
-              aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
-              color="inherit"
+            <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                onClick={() => window.location.href = '/'}
+                sx={{ display: { xs: 'none', sm: 'block' } }}
             >
-              <MoreIcon />
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
-      {renderMobileMenu}
-      {renderMenu}
-    </Box>
+              Capstone Store
+            </Typography>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                  placeholder="Search…"
+                  inputProps={{ 'aria-label': 'search' }}
+              />
+            </Search>
+
+            {/*Add Men, Women, and Kids as navigation links in the AppBar*/}
+            <Box sx={{ display: 'inherit', justifyContent: 'center', alignItems: 'center', ml: 38 }}>
+              <Button
+                  color="inherit"
+                  sx={{ mx: 5 }}
+                  onClick={(event) => handleNavMenuOpen(event, setAnchorElMen)}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Men
+                  <ArrowDropDown />
+                </Box>
+              </Button>
+              <Menu
+                  anchorEl={anchorElMen}
+                  open={Boolean(anchorElMen)}
+                  onClose={() => handleNavMenuClose(setAnchorElMen)}
+              >
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Tops</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Bottoms</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Shoes</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Accessories</MenuItem>
+              </Menu>
+
+              <Button
+                  color="inherit"
+                  sx={{ mx: 5 }}
+                  onClick={(event) => handleNavMenuOpen(event, setAnchorElWomen)}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Women
+                  <ArrowDropDown />
+                </Box>
+              </Button>
+              <Menu
+                  anchorEl={anchorElWomen}
+                  open={Boolean(anchorElWomen)}
+                  onClose={() => handleNavMenuClose(setAnchorElWomen)}
+              >
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Tops</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Bottoms</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElMen)}>Shoes</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElWomen)}>Accessories</MenuItem>
+              </Menu>
+
+              <Button
+                  color="inherit"
+                  sx={{ mx: 5 }}
+                  onClick={(event) => handleNavMenuOpen(event, setAnchorElKids)}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  Kids
+                  <ArrowDropDown />
+                </Box>
+              </Button>
+              <Menu
+                  anchorEl={anchorElKids}
+                  open={Boolean(anchorElKids)}
+                  onClose={() => handleNavMenuClose(setAnchorElKids)}
+              >
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Tops</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Bottoms</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Shoes</MenuItem>
+                <MenuItem component={Link} to="/product-listing" onClick={() => handleNavMenuClose(setAnchorElKids)}>Accessories</MenuItem>
+              </Menu>
+            </Box>
+
+            <Box sx={{ flexGrow: 1 }} />
+
+            <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
+              <IconButton size="large" aria-label="show 4 new mails" color="inherit">
+                <Badge badgeContent={4} color="error">
+                  <StyledFavoriteIcon /> {/* Use the styled icon with a red background */}
+                </Badge>
+              </IconButton>
+              <IconButton size="large" aria-label="show 17 new notifications" color="inherit">
+                <Badge badgeContent={17} color="error">
+                  <NotificationsIcon />
+                </Badge>
+              </IconButton>
+              <IconButton
+                  size="large"
+                  edge="end"
+                  aria-label="account of current user"
+                  aria-controls={menuId}
+                  aria-haspopup="true"
+                  onClick={handleProfileMenuOpen}
+                  color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+            </Box>
+            <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
+              <IconButton
+                  size="large"
+                  aria-label="show more"
+                  aria-controls={mobileMenuId}
+                  aria-haspopup="true"
+                  onClick={handleMobileMenuOpen}
+                  color="inherit"
+              >
+                <MoreIcon />
+              </IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+        {renderMobileMenu}
+        {renderMenu}
+      </Box>
   );
 }

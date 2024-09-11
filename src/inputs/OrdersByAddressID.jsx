@@ -31,7 +31,7 @@ export default function OrdersByAddressID() {
   };
 
   return (
-    <Box sx={{ width: '100vh', padding: 2 }}>
+    <Box sx={{ width: '100%', padding: 2 }}>
       <h2>Orders by Address ID</h2>
       <TextField
         label="Address ID"

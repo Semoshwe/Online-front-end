@@ -1,13 +1,14 @@
-import { useState } from 'react'; // Import React and useState
+// src/inputs/ShippingDetails.jsx
+
+import { useState } from 'react';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import { createAddress } from '../services/AddressService'; // Adjust the import path if needed
+import Button from '@mui/material/Button'; // Import Button
+import PropTypes from 'prop-types';
 
-function ShippingDetails() {
-  // State to manage form inputs
-  const [formData, setFormData] = useState({
+function ShippingDetails({ onSave }) {
+  const [shippingDetails, setShippingDetails] = useState({
     fullName: '',
     address: '',
     city: '',
@@ -15,87 +16,71 @@ function ShippingDetails() {
     country: ''
   });
 
-  // State for handling submission status
-  const [status, setStatus] = useState('');
-
-  // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setShippingDetails({
+      ...shippingDetails,
+      [e.target.name]: e.target.value
+    });
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createAddress(formData);
-      setStatus('Address saved successfully!');
-    } catch (error) {
-      setStatus('Error saving address. Please try again.');
-    }
+  const handleSave = () => {
+    onSave(shippingDetails); // Pass shipping details to parent
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate>
+    <Box>
       <Typography variant="h5" gutterBottom>
         Shipping Details
       </Typography>
       <TextField
         label="Full Name"
         name="fullName"
-        value={formData.fullName}
-        onChange={handleChange}
         fullWidth
         margin="normal"
-        required
+        value={shippingDetails.fullName}
+        onChange={handleChange}
       />
       <TextField
         label="Address"
         name="address"
-        value={formData.address}
-        onChange={handleChange}
         fullWidth
         margin="normal"
-        required
+        value={shippingDetails.address}
+        onChange={handleChange}
       />
       <TextField
         label="City"
         name="city"
-        value={formData.city}
-        onChange={handleChange}
         fullWidth
         margin="normal"
-        required
+        value={shippingDetails.city}
+        onChange={handleChange}
       />
       <TextField
         label="Postal Code"
         name="postalCode"
-        value={formData.postalCode}
-        onChange={handleChange}
         fullWidth
         margin="normal"
-        required
+        value={shippingDetails.postalCode}
+        onChange={handleChange}
       />
       <TextField
         label="Country"
         name="country"
-        value={formData.country}
-        onChange={handleChange}
         fullWidth
         margin="normal"
-        required
+        value={shippingDetails.country}
+        onChange={handleChange}
       />
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        sx={{ mt: 2 }}
-      >
-        Save Address
+      <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleSave}>
+        Save Shipping Details
       </Button>
-      {status && <Typography variant="body1" sx={{ mt: 2 }}>{status}</Typography>}
     </Box>
   );
 }
+
+ShippingDetails.propTypes = {
+  onSave: PropTypes.func.isRequired, // Validate that onSave is a required function
+};
 
 export default ShippingDetails;

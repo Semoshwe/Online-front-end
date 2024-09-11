@@ -5,6 +5,8 @@ import { Avatar, Container, FormControlLabel, Link, TextField, Typography, Paper
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {Link as RouterLink} from "react-router-dom";
 
+import {findUserByUsername} from '../services/userService';
+
 const LoginPage = () => {
     console.log("LoginPage loaded");
     const [loginData, setLoginData] = useState({ // This requires the useState hook to be imported
@@ -63,7 +65,7 @@ const LoginPage = () => {
                     />
                     <FormControlLabel control = {<CheckBox value ="remember" color ="primary"/>}
                     label = "Remember me"
-                    />
+                />
                     <Button type = "submit" variant ="contained" fullWidth sx = {{mt:1}}>
                         Sign in
                     </Button>

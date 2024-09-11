@@ -76,7 +76,7 @@ export const updateOrder = async (order) => {
 // Get all orders
 export const getAllOrders = async () => {
     try {
-        const response = await axiosInstance.get('/order/getAll');
+        const response = await axiosInstance.get('/order/all');
         // Debug statement for success
         console.debug('Orders fetched successfully:', response.data);
         return response.data;
@@ -97,12 +97,12 @@ export const getAllOrders = async () => {
     }
 };
 
-// Find orders by customer ID
-export const findOrdersByCustomerID = async (customerID) => {
+// Find orders by user ID
+export const findOrdersByCustomerID = async (userID) => {
     try {
-        const response = await axiosInstance.get(`/order/findByCustomerID/${customerID}`);
+        const response = await axiosInstance.get(`/order/user/${userID}`);
         // Debug statement for success
-        console.debug('Orders by customer ID fetched successfully:', response.data);
+        console.debug('Orders by user ID fetched successfully:', response.data);
         return response;
     } catch (error) {
         if (error.response) {
@@ -116,7 +116,7 @@ export const findOrdersByCustomerID = async (customerID) => {
             // Debug statement for setup errors
             console.error('Error setting up request:', error.message);
         }
-        console.error('Error fetching orders by customer ID:', error);
+        console.error('Error fetching orders by user ID:', error);
         throw error;
     }
 };
@@ -124,7 +124,7 @@ export const findOrdersByCustomerID = async (customerID) => {
 // Find orders by status
 export const findOrdersByStatus = async (status) => {
     try {
-        const response = await axiosInstance.get(`/order/findByStatus/${status}`);
+        const response = await axiosInstance.get(`/order/status/${status}`);
         // Debug statement for success
         console.debug('Orders by status fetched successfully:', response.data);
         return response.data;
@@ -148,7 +148,7 @@ export const findOrdersByStatus = async (status) => {
 // Find orders by order date range
 export const findOrdersByOrderDateBetween = async (startDate, endDate) => {
     try {
-        const response = await axiosInstance.get('/order/findByOrderDateBetween', {
+        const response = await axiosInstance.get('/order/date-range', {
             params: { startDate, endDate }
         });
         // Debug statement for success
@@ -174,7 +174,7 @@ export const findOrdersByOrderDateBetween = async (startDate, endDate) => {
 // Find orders by address ID
 export const findOrdersByAddressID = async (addressID) => {
     try {
-        const response = await axiosInstance.get(`/order/findByAddressID/${addressID}`);
+        const response = await axiosInstance.get(`/order/address/${addressID}`);
         // Debug statement for success
         console.debug('Orders by address ID fetched successfully:', response.data);
         return response;
@@ -198,7 +198,7 @@ export const findOrdersByAddressID = async (addressID) => {
 // Find orders by total price greater than
 export const findOrdersByTotalPriceGreaterThan = async (totalPrice) => {
     try {
-        const response = await axiosInstance.get(`/order/findByTotalPriceGreaterThan/${totalPrice}`);
+        const response = await axiosInstance.get(`/order/total-price/${totalPrice}`);
         // Debug statement for success
         console.log('response info: ', response);
         console.debug('Orders by total price fetched successfully  inside the OrderService:', response.data);
@@ -247,7 +247,7 @@ export const findOrdersByOrderItemsID = async (orderItemsID) => {
 // Delete an order by ID
 export const deleteOrderByID = async (orderID) => {
     try {
-        await axiosInstance.delete(`/order/deleteByOrderID/${orderID}`);
+        await axiosInstance.delete(`/order/delete/${orderID}`);
         // Debug statement for success
         console.debug('Order deleted successfully');
     } catch (error) {
@@ -267,12 +267,12 @@ export const deleteOrderByID = async (orderID) => {
     }
 };
 
-// Delete orders by customer ID deletes the order if customer cancels it
-export const deleteOrdersByCustomerID = async (customerID) => {
+// Delete orders by user ID deletes the order if customer cancels it
+export const deleteOrdersByUserID = async (userID) => {
     try {
-        await axiosInstance.delete(`/order/deleteByCustomerID/${customerID}`);
+        await axiosInstance.delete(`/order/user/${userID}`);
         // Debug statement for success
-        console.debug('Orders by customer ID deleted successfully');
+        console.debug('Orders by user ID deleted successfully');
     } catch (error) {
         if (error.response) {
             // Debug statements for error responses
@@ -285,7 +285,7 @@ export const deleteOrdersByCustomerID = async (customerID) => {
             // Debug statement for setup errors
             console.error('Error setting up request:', error.message);
         }
-        console.error('Error deleting orders by customer ID:', error);
+        console.error('Error deleting orders by user ID:', error);
         throw error;
     }
 };
