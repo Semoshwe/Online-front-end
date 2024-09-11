@@ -115,7 +115,7 @@ export default function PrimarySearchAppBar() {
     </Menu>
   );
 
-  // FOR NAV categories
+  // FOR NAV categories 
   const [anchorElMen, setAnchorElMen] = useState(null);
   const [anchorElWomen, setAnchorElWomen] = useState(null);
   const [anchorElKids, setAnchorElKids] = useState(null);
