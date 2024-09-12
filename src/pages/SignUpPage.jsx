@@ -16,7 +16,7 @@ const marginTop = {marginTop:5}
 
        <Grid> 
        <Paper elevation={20} style={paperStyle}>
-        <Grid align='center'>
+        <Grid align='center' >
             <Avatar style={avatarStyle}>
             <AccountCircleOutlinedIcon/>
             </Avatar>
@@ -42,7 +42,7 @@ const marginTop = {marginTop:5}
                     <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
                     </RadioGroup>
             </FormControl>
-            <Button type = 'submit' variant = 'contained' color='primary'>Sign Up</Button>
+            <Button type = 'submit' variant = 'contained' color='primary' component = {RouterLink} to ="/signup">Sign Up</Button>
             
        </form>
        </Paper>

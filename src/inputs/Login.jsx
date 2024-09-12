@@ -2,7 +2,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { createUser } from '../services/UserService'; // Adjust the path if needed
+import { createUser } from '../services/userService'; // Adjust the path if needed
 import { useState } from 'react';
 import { useHistory } from 'react-router-dom'; // For redirecting after login
 
