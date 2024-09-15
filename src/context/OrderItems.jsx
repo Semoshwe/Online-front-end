@@ -1,42 +1,24 @@
-import { useContext, useEffect } from 'react'; 
+import { useContext } from 'react'; // Import React and useContext
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
-import Button from '@mui/material/Button'; 
-import CartContext from '../context/CartContext'; 
-import { createCartItem } from '../services/CartItemService'; 
+import Button from '@mui/material/Button'; // Import Button component
+//import OrderContext from './context/OrderContext'; // Ensure the path is correct
 
-function CartItems() {
-  const { cartItems, removeItem } = useContext(CartContext);
-
-  useEffect(() => {
-    // Loop through cartItems and call the cartItemService create method for each
-    const addItemsToDB = async () => {
-      try {
-        for (const item of cartItems) {
-          await createCartItem(item); // Automatically adds cart items to the database
-        }
-      } catch (error) {
-        console.error("Error adding items to the database:", error);
-      }
-    };
-
-    if (cartItems.length > 0) {
-      addItemsToDB(); // Call the function to add items to the database
-    }
-  }, [cartItems]); // Runs whenever cartItems is updated
+function OrderItems() {
+  const { orderItems, removeItem } = useContext(OrderContext); // Destructure removeItem from context
 
   return (
     <div>
       <Typography variant="h5" gutterBottom>
-        Items in Your Cart
+        Items in Your Order
       </Typography>
       <List>
-        {cartItems?.length === 0 ? (
-          <Typography>No items in your cart.</Typography>
+        {orderItems?.length === 0 ? (
+          <Typography>No items in your order.</Typography>
         ) : (
-          cartItems.map((item) => (
+          orderItems.map((item) => (
             <ListItem key={item.id}>
               <img
                 src={item.image}
@@ -45,7 +27,7 @@ function CartItems() {
               />
               <ListItemText
                 primary={`${item.name} (x${item.quantity})`}
-                secondary={`Price: R${item.price * item.quantity}`} //
+                secondary={`Price: R${item.price * item.quantity}`}
               />
               <Button
                 variant="contained"
@@ -67,4 +49,4 @@ function CartItems() {
   );
 }
 
-export default CartItems;
+export default OrderItems;

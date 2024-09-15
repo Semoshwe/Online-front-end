@@ -1,96 +1,116 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
 import { DataGrid } from '@mui/x-data-grid';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import OrderDialogs from '../inputs/OrderDialogs';
-import { readAddress } from '../services/AddressService'; // Importing the addressService
+import { readAddress } from '../services/AddressService'; // Import address service
+import { findOrderItemsByOrderID } from '../services/OrderItemService'; // Import order items service
 import dayjs from 'dayjs'; // Import Day.js
 
-// Function to parse the LocalDateTime string into a Day.js object
-const parseLocalDateTime = (dateTimeStr) => {
-  if (!dateTimeStr) return null; // Handle null or empty case
-  return dayjs(dateTimeStr); // Return Day.js object
-};
+ const parseLocalDateTime = (dateTimeStr) => {
+  if (!dateTimeStr) return null;
+  return dayjs(dateTimeStr);
+}; 
 
-// Define the columns for the data grid
 const columns = [
-  { field: 'orderID', headerName: 'Order ID', width: 100 },
+  { field: 'id', headerName: 'Order ID', width: 100 }, // Use 'id' instead of 'orderID'
   { field: 'userID', headerName: 'User ID', width: 100 },
   { field: 'addressID', headerName: 'Address ID', width: 100 },
   { field: 'status', headerName: 'Status', width: 100 },
   { field: 'totalPrice', headerName: 'Total Price', width: 100, type: 'number' },
-  {field: 'orderDate', headerName: 'Order Date', width: 100, type:'Date'  },
-
-  // Display the number of items in the orderItems array
+  { field: 'orderDate', headerName: 'Order Date', width: 100, type: 'date' },
   {
-    field: 'orderItems',
+    field: 'orderItemCount',
     headerName: 'Total Items',
     width: 90,
-    valueGetter: (params) => {
-      return Array.isArray(params.row?.orderItems) ? params.row.orderItems.length : 0; // Safely check if it's an array
-    },
+    valueGetter: (params) => params.row.orderItemCount || 'Loading...',
   },
 ];
 
 export default function DataTable({ rows }) {
-  const [open, setOpen] = React.useState(false); // State to manage the dialog open/close
-  const [address, setAddress] = React.useState(null); // State to store the address details
+  const [open, setOpen] = React.useState(false);
+  const [address, setAddress] = React.useState(null);
+  const [orderItemCounts, setOrderItemCounts] = React.useState({});
+  const navigate = useNavigate();
 
-  // Handle cell click event
+  const fetchOrderItemsCount = async (id) => {
+    try {
+      const response = await findOrderItemsByOrderID(id); 
+      return Array.isArray(response.data) ? response.data.length : 0;
+    } catch (error) {
+      console.error('Error fetching order items:', error);
+      return 0;
+    }
+  };
+
+  React.useEffect(() => {
+    const fetchAllOrderItemCounts = async () => {
+      const counts = {};
+      for (let row of rows) {
+        const count = await fetchOrderItemsCount(row.id); // Use 'id' instead of 'orderID'
+        counts[row.id] = count;
+      }
+      setOrderItemCounts(counts);
+    };
+    fetchAllOrderItemCounts();
+  }, [rows]);
+
+  const rowsWithItemCount = rows.map((row) => ({
+    ...row,
+    orderItemCount: orderItemCounts[row.id] || 'Loading...', // Use 'id' instead of 'orderID'
+  }));
+
+  const handleRowClick = (params) => {
+    navigate(`/order-items/${params.row.id}`); // Use 'id' for redirection
+  };
+
   const handleCellClick = async (params) => {
     if (params.field === 'addressID') {
       try {
-        const response = await readAddress.read(params.value); // Fetch address details
-        setAddress(response.data); // Set address details
-        setOpen(true); // Open dialog
+        const response = await readAddress.read(params.value);
+        setAddress(response.data);
+        setOpen(true);
       } catch (error) {
-        console.error('Error fetching address:', error); // Log error
+        console.error('Error fetching address:', error);
       }
     }
   };
 
-  // Handle dialog close event
   const handleClose = () => {
-    setOpen(false); // Close dialog
-    setAddress(null); // Reset address details
+    setOpen(false);
+    setAddress(null);
   };
 
   return (
     <div style={{ height: 400, width: '70%' }}>
       <DataGrid
-        rows={rows} // Data rows
-        columns={columns} // Columns configuration
-        getRowId={(row) => row.orderID} // Use orderID as the row ID
+        rows={rowsWithItemCount}
+        columns={columns}
+        getRowId={(row) => row.id} // Use 'id'
         initialState={{
           pagination: {
-            paginationModel: { page: 0, pageSize: 5 }, // Initial pagination settings
+            paginationModel: { page: 0, pageSize: 5 },
           },
         }}
-        pageSizeOptions={[5, 10]} // Page size options
-        checkboxSelection // Enable checkbox selection
-        onCellClick={handleCellClick} // Add click listener for cells
+        pageSizeOptions={[5, 10]}
+        checkboxSelection
+        onCellClick={handleCellClick}
+        onRowClick={handleRowClick}
       />
-      <OrderDialogs open={open} address={address} handleClose={handleClose} /> {/* Pass the dialog props */}
+      <OrderDialogs open={open} address={address} handleClose={handleClose} />
     </div>
   );
 }
 
-// Prop types validation
 DataTable.propTypes = {
   rows: PropTypes.arrayOf(
     PropTypes.shape({
-      orderID: PropTypes.number.isRequired,
+      id: PropTypes.number.isRequired, // Use 'id'
       userID: PropTypes.number.isRequired,
       addressID: PropTypes.number.isRequired,
       totalPrice: PropTypes.number.isRequired,
       status: PropTypes.string.isRequired,
       orderDate: PropTypes.string.isRequired,
-      orderItems: PropTypes.arrayOf(
-        PropTypes.shape({
-          productID: PropTypes.number.isRequired,
-          quantity: PropTypes.number.isRequired,
-          price: PropTypes.number.isRequired,
-        })
-      ).isRequired,
     })
   ).isRequired,
 };

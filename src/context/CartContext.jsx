@@ -1,14 +1,15 @@
 import { createContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'; // Import PropTypes for validation
+import { createCartItem } from '../services/CartItemService'; // Ensure the path is correct
 
 const CartContext = createContext();
 
-export const CartProvider = ({ children }) => {
+export const CartProvider = ({ children }) => { // children is passed as prop
   const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (product) => {
-    console.log('Adding to cart:', product); // Check if this logs correctly
+  const addToCart = async (product) => {
     const existingItem = cartItems.find((item) => item.id === product.id);
+
     if (existingItem) {
       setCartItems(
         cartItems.map((item) =>
@@ -16,17 +17,29 @@ export const CartProvider = ({ children }) => {
         )
       );
     } else {
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
+      const newItem = { ...product, quantity: 1 };
+      setCartItems([...cartItems, newItem]);
+
+      try {
+        await createCartItem(newItem);
+      } catch (error) {
+        console.error("Failed to save cart item to the database:", error);
+      }
     }
   };
 
+  const removeItem = (id) => {
+    setCartItems(cartItems.filter((item) => item.id !== id));
+  };
+
   return (
-    <CartContext.Provider value={{ cartItems, addToCart }}>
+    <CartContext.Provider value={{ cartItems, addToCart, removeItem }}>
       {children}
     </CartContext.Provider>
   );
 };
 
+// Validate that 'children' is required and of node type
 CartProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };

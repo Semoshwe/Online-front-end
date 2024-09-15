@@ -2,7 +2,7 @@ import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography'; // This is styling for all texts
+import Typography from '@mui/material/Typography';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Card from '@mui/material/Card';
@@ -25,31 +25,33 @@ function OrdersPage() {
       <CssBaseline />
       <Container disableGutters maxWidth={false} sx={{ padding: 0 }}>
         <Box sx={{ bgcolor: '#cfe8fc', height: '100vh', padding: 0, margin: 0 }}>
-          <Typography align="center" variant="h1" sx={{ margin: 0, padding: 0 }}>
+          <Typography
+            align="center"
+            variant="h2"
+            sx={{ padding: '20px 0', fontWeight: 'bold' }}
+          >
             Find Orders
           </Typography>
-          <Card sx={{ margin: 0, padding: 0 }} no-gutters>
+          <Card sx={{ margin: 2, boxShadow: 3 }}>
             <Tabs
               value={value}
               onChange={handleChange}
               variant="scrollable"
               scrollButtons="auto"
-              aria-label="scrollable auto tabs example"
-              no-gutters
+              aria-label="Order filter tabs"
               sx={{
                 borderBottom: 1,
                 borderColor: 'divider',
-                margin: 0,
-                padding: 0,
+                paddingX: 2,
               }}
             >
               <Tab label="Customer" />
-              <Tab label="Price greater" />
+              <Tab label="Price Range" />
               <Tab label="Address" />
               <Tab label="Status" />
               <Tab label="Dates" />
             </Tabs>
-            <CardContent sx={{ padding: 0 }}>
+            <CardContent>
               {value === 0 && <OrdersByCustomerID />}
               {value === 1 && <PriceRange />}
               {value === 2 && <OrdersByAddressID />}

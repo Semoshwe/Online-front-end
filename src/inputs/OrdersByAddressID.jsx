@@ -12,10 +12,10 @@ export default function OrdersByAddressID() {
 
   const handleFetchOrders = async () => {
     try {
-      const response = await findOrdersByAddressID(addressID);
-      console.log('Fetched orders:', response.data);
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        setRows(response.data);
+      const data = await findOrdersByAddressID(addressID);
+      console.log('Fetched orders:', data);
+      if (Array.isArray(data) && data.length > 0) {
+        setRows(data.data);
       } else {
         setError('No orders found for this address ID');
         setRows([]);

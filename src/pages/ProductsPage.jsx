@@ -16,22 +16,26 @@ import ProductRead from "../inputs/ProductRead.jsx";
 import ProductCreate from "../inputs/ProductCreate.jsx";
 import ProductUpdate from "../inputs/ProductUpdate.jsx";
 
+//import jeanImage from './assets/W_952737_149_2.jpg';
+//import tshirtImage from './assets/t-shirt.jpg';
+
 const products = [
   {
     id: 1,
     name: 'Jean',
     description: 'Comfortable and stylish blue denim jeans.',
     price: 599.99,
-    image: './assets/W_952737_149_2.jpg',
+    //image: jeanImage, 
   },
   {
     id: 2,
     name: 'T-Shirt',
     description: 'Classic white t-shirt made from 100% cotton.',
     price: 199.99,
-    image: './assets/t-shirt.jpg',
+    //image: tshirtImage, 
   },
 ];
+
 
 function ProductsPage() {
   const [value, setValue] = React.useState(0);

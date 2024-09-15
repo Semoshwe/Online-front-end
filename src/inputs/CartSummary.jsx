@@ -19,7 +19,7 @@ function CartSummary() {
         Cart Summary
       </Typography>
       <Typography variant="body1">Subtotal: R{subtotal.toFixed(2)}</Typography>
-      <Typography variant="body1">Tax: R{tax.toFixed(2)}</Typography>
+      <Typography variant="body1">Shipping fee: R{tax.toFixed(2)}</Typography>
       <Typography variant="h6" sx={{ mt: 2 }}>Total: R{total.toFixed(2)}</Typography>
     </Box>
   );

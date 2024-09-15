@@ -1,44 +1,63 @@
-// PriceRange.jsx
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Slider from '@mui/material/Slider';
 import Typography from '@mui/material/Typography';
-import { findOrdersByTotalPriceGreaterThan } from '../services/OrderService'; // Correct import
-import OrdersDisplayTable from '../components/OrdersDisplayTable'; // Importing the PriceRangeTable component
+import { findOrdersByTotalPriceGreaterThan } from '../services/OrderService';
+import OrdersDisplayTable from '../components/OrdersDisplayTable';
 
-const MAX = 10000;
+const MAX = 5000;
 const MIN = 100;
 
 export default function PriceRange() {
   const [val, setVal] = React.useState(MIN);
   const [rows, setRows] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const debounceTimeout = React.useRef(null); // Reference for debounce timeout
 
   const handleChange = (_, newValue) => {
     setVal(newValue);
-    fetchOrders(newValue); // Fetch orders when slider value changes
+    debounceFetchOrders(newValue); // Fetch orders with debouncing
   };
 
-  // Function to call the Axios method
-  const fetchOrders = async (price) => {
-    try {
-        const response = await findOrdersByTotalPriceGreaterThan(price);
-        console.log('Fetched orders:', response.data);
-        if (Array.isArray(response.data) && response.data.length > 0) {
-            setRows(response.data); // Set the retrieved data to the rows state
-        } else {
-            console.warn('No orders found or invalid response:', response);
-            setRows([]); // Clear the table if no valid data is returned
-        }
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        setRows([]); // Clear the table if there's an error
+  // Debounced function to fetch orders
+  const debounceFetchOrders = (price) => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current); // Clear any previous timeouts
     }
-};
+    debounceTimeout.current = setTimeout(() => {
+      fetchOrders(price);
+    }, 300); // Delay of 300ms
+  };
 
+  const fetchOrders = async (price) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await findOrdersByTotalPriceGreaterThan(price);
+      console.log('Fetched orders:', response.data);
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        setRows(response.data); // Set the retrieved data to the rows state
+      } else {
+        setError('No orders found for this price range');
+        setRows([]); // Clear the table if no valid data is returned
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError('Error fetching orders: ' + error.message);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  React.useEffect(() => {
+    // Fetch initial orders on component mount
+    fetchOrders(val);
+  }, []);
 
   return (
-    <Box  sx={{ width: '90%', padding: 2,  margin: 2  }}>
+    <Box sx={{ width: '90%', padding: 2, margin: 2 }}>
       <h2>Price Greater Than </h2>
       <Slider
         step={10}
@@ -64,7 +83,9 @@ export default function PriceRange() {
           <h2>R {MAX} max</h2>
         </Typography>
       </Box>
-      <OrdersDisplayTable rows={rows} /> {/* Pass the rows to the DataTable component */}
+      {loading && <div>Loading orders...</div>}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+      <OrdersDisplayTable rows={rows} /> {/* Pass the rows to the OrdersDisplayTable component */}
     </Box>
   );
 }

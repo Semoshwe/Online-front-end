@@ -1,13 +1,12 @@
-// src/inputs/ShippingDetails.jsx
-
 import { useState } from 'react';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button'; // Import Button
+import OrderReview from './OrderReview'; // Import OrderReview component
 import PropTypes from 'prop-types';
 
-function ShippingDetails({ onSave }) {
+function ShippingDetails() {
   const [shippingDetails, setShippingDetails] = useState({
     fullName: '',
     address: '',
@@ -16,6 +15,9 @@ function ShippingDetails({ onSave }) {
     country: ''
   });
 
+  const [isSaved, setIsSaved] = useState(false); // Track if the details are saved
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleChange = (e) => {
     setShippingDetails({
       ...shippingDetails,
@@ -23,8 +25,14 @@ function ShippingDetails({ onSave }) {
     });
   };
 
-  const handleSave = () => {
-    onSave(shippingDetails); // Pass shipping details to parent
+  const handleSave = async () => {
+    try {
+      // Simulate saving process
+      setIsSaved(true); // Set the button to "Saved" state
+    } catch (error) {
+      console.error("Error saving shipping details:", error);
+      setErrorMessage("Error saving details. Please try again."); // Display an error message
+    }
   };
 
   return (
@@ -72,15 +80,25 @@ function ShippingDetails({ onSave }) {
         value={shippingDetails.country}
         onChange={handleChange}
       />
-      <Button variant="contained" color="primary" sx={{ mt: 2 }} onClick={handleSave}>
-        Save Shipping Details
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ mt: 2 }}
+        onClick={handleSave}
+        disabled={isSaved} // Disable the button if details are saved
+      >
+        {isSaved ? "Saved" : "Save Shipping Details"} {/* Change text if saved */}
       </Button>
+      {errorMessage && <Typography color="error">{errorMessage}</Typography>}
+
+      {/* Render OrderReview only after shipping details are saved */}
+      {isSaved && <OrderReview shippingDetails={shippingDetails} />}
     </Box>
   );
 }
 
 ShippingDetails.propTypes = {
-  onSave: PropTypes.func.isRequired, // Validate that onSave is a required function
+  onSave: PropTypes.func, // Optional in this case
 };
 
 export default ShippingDetails;

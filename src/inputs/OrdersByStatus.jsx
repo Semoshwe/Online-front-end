@@ -12,17 +12,18 @@ export default function FindOrdersByStatus() {
 
   const handleFetchOrders = async () => {
     try {
-      const response = await findOrdersByStatus(status);
-      console.log('Fetched orders:', response);
-      if (Array.isArray(response) && response.length > 0) {
-        setRows(response);
+      const data = await findOrdersByStatus(status); // Simplified response handling
+      console.log('Fetched orders:', data);
+      if (Array.isArray(data) && data.length > 0) {
+        setRows(data);
+        setError(null); // Clear previous errors
       } else {
         setError('No orders found for this status');
-        setRows([]);
+        setRows([]); // Clear the table if no orders are found
       }
     } catch (error) {
       setError('Error fetching orders by status: ' + error.message);
-      setRows([]);
+      setRows([]); // Clear rows on error
     }
   };
 
@@ -44,14 +45,15 @@ export default function FindOrdersByStatus() {
         variant="contained"
         color="primary"
         onClick={handleFetchOrders}
-        sx={{width: 250, height: 56, margin: 2 }}
+        sx={{ width: 250, height: 56, margin: 2 }}
+        disabled={!status} // Disable button when status is empty
       >
         Fetch Orders
       </Button>
       {error && (
         <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>
       )}
-      <OrdersDisplayTable rows={rows} />
+      <OrdersDisplayTable rows={rows} /> {/* Pass rows to the table */}
     </Box>
   );
 }
