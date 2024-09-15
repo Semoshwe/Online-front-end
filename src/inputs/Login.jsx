@@ -25,10 +25,10 @@ export default function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await createUser(loginData); // Use your login endpoint
+      const response = await loginUser(loginData); // Use your login endpoint
       console.log('Login successful:', response);
       // Redirect or update state on successful login
-      history.push('/dashboard'); // Example redirect
+      history.push('/'); // Example redirect
     } catch (error) {
       console.error('Login error:', error);
       setError('Error logging in: ' + error.message);

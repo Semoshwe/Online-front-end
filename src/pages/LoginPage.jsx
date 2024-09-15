@@ -4,7 +4,7 @@ import { Box } from '@mui/system';
 import { Avatar, Container, FormControlLabel, Link, TextField, Typography, Paper, Button, Grid } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import {Link as RouterLink} from "react-router-dom";
-
+import { loginUser } from '../services/userService';
 import {findUserByUsername} from '../services/userService';
 
 const LoginPage = () => {
@@ -14,6 +14,19 @@ const LoginPage = () => {
         password: ''
     });
 
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        try {
+            const response = await loginUser(loginData.username, loginData.password);
+            console.log('Login successful:', response);
+            history.push('/dashboard'); // Redirect after successful login
+        } catch (error) {
+            console.error('Login error:', error);
+            setError('Error logging in: ' + error.message);
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setLoginData({
@@ -22,10 +35,7 @@ const LoginPage = () => {
         });
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        console.log(loginData);
-    };
+   
 
     return(
         <Container maxWidth = "xs">

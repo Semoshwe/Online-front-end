@@ -1,9 +1,10 @@
 import axiosInstance from '../axiosConfig';
+//import bcrypt from 'bcryptjs';
 
 // Create a new user
 export const createUser = async (user) => {
     try {
-        const response = await axiosInstance.post('/users', user);
+        const response = await axiosInstance.post('/users/create', user);
         // Debug statement for success
         console.debug('User created successfully:', response.data);
         return response.data;
@@ -23,6 +24,24 @@ export const createUser = async (user) => {
         throw error;
     }
 };
+
+
+
+// Login function (no bcrypt)
+export const loginUser = async (username, password) => {
+    try {
+        // Send username and password to backend API
+        const response = await axiosInstance.post('/login', { username, password });
+        
+        // Debug for successful login
+        console.debug('Login successful:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+    }
+};
+
 
 // Read a user by ID
 export const readUser = async (id) => {
