@@ -9,10 +9,10 @@ import {Button} from "@mui/material";
 import * as React from "react";
 import {readProduct} from "../services/ProductService.js";
 
-export default function ProductRead(){
-    const[productID, setProductID] = React.useState('');
+export default function ProductRead() {
+    const [productID, setProductID] = React.useState('');
     const[product, setProduct] = React.useState(null); // Stores fetched product
-    const [error, setError] = React.useState(null);
+    const[error, setError] = React.useState(null);
 
     const handleFetchProduct = async () => {
         try{
@@ -23,11 +23,21 @@ export default function ProductRead(){
             setError('Error fetching product: ' + error.message);
             setProduct(null); // Clears product if error occurs
         }
+
+        // event.preventDefault();
+        // const { productId, name, description, price, stock, categoryId, createdAt, updatedAt, imagePath} = this.state;
+
+        // fetch('http://localhost:9090/shopping_store/product/read'+ productId, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        //     })
     };
 
     const handleProductIDChange = (event) => {
         setProductID(event.target.value);
-    }
+    };
 
     return (
         <div>

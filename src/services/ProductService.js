@@ -1,10 +1,9 @@
 import axiosInstance from '../axiosConfig';
 
-const BASE_URL = 'http://localhost:8080/store/product';
 // Create a product
 export const createProduct = async (product) => {
     try {
-        const response = await axiosInstance.post(BASE_URL+'/create', product);
+        const response = await axiosInstance.post('/product/create', product);
         console.debug("Product created:", response.data);
         return response.data;
     } catch (error) {
@@ -16,7 +15,7 @@ export const createProduct = async (product) => {
 // Read a product by ID
 export const readProduct = async (id) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/${id}`);
+        const response = await axiosInstance.get(`/product/read/${id}`);
         console.debug('Product read successfully:', response.data);
         return response.data;
     } catch (error) {
@@ -28,7 +27,7 @@ export const readProduct = async (id) => {
 // Update a product by ID
 export const updateProduct = async (id, product) => {
     try {
-        const response = await axiosInstance.put(BASE_URL+`/update/${id}`, product);
+        const response = await axiosInstance.put(`/product/update/${id}`, product);
         console.debug('Product updated successfully:', response.data);
         return response.data;
     } catch (error) {
@@ -40,7 +39,7 @@ export const updateProduct = async (id, product) => {
 // Delete a product by ID
 export const deleteProduct = async (id) => {
     try {
-        await axiosInstance.delete(BASE_URL+`/delete/${id}`);
+        await axiosInstance.delete(`/product/delete/${id}`);
         console.debug('Product deleted successfully');
     } catch (error) {
         handleAxiosError(error, 'deleting product');
@@ -51,7 +50,7 @@ export const deleteProduct = async (id) => {
 // Get all products
 export const getAllProducts = async () => {
     try {
-        const response = await axiosInstance.get(BASE_URL+'/getAll');
+        const response = await axiosInstance.get('/product/getAll');
         console.debug('Products fetched successfully:', response.data);
         return response.data;
     } catch (error) {
@@ -63,7 +62,7 @@ export const getAllProducts = async () => {
 // Get products by name
 export const getProductsByName = async (name) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/name/${name}`);
+        const response = await axiosInstance.get(`/product/name/${name}`);  // Corrected URL
         console.debug('Products by name fetched successfully:', response.data);
         return response.data;
     } catch (error) {
@@ -75,7 +74,7 @@ export const getProductsByName = async (name) => {
 // Get products by category ID
 export const getProductsByCategoryId = async (categoryId) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/category/${categoryId}`);
+        const response = await axiosInstance.get(`/product/category/${categoryId}`);  // Corrected URL
         console.debug('Products by category ID fetched successfully:', response.data);
         return response.data;
     } catch (error) {
@@ -87,7 +86,7 @@ export const getProductsByCategoryId = async (categoryId) => {
 // Get products by price range
 export const getProductsByPriceRange = async (minPrice, maxPrice) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/price`, {
+        const response = await axiosInstance.get(`/product/price`, {  // Corrected URL
             params: { minPrice, maxPrice }
         });
         console.debug('Products by price range fetched successfully:', response.data);
@@ -101,7 +100,7 @@ export const getProductsByPriceRange = async (minPrice, maxPrice) => {
 // Get products by stock quantity greater than a value
 export const getProductsByStockQuantity = async (stockQuantity) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/stock`, {
+        const response = await axiosInstance.get(`/product/stock`, {  // Corrected URL
             params: { stockQuantity }
         });
         console.debug('Products by stock quantity fetched successfully:', response.data);
@@ -115,7 +114,7 @@ export const getProductsByStockQuantity = async (stockQuantity) => {
 // Get products created after a specific date
 export const getProductsCreatedAfter = async (createdAt) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/created-after`, {
+        const response = await axiosInstance.get(`/product/created-after`, {  // Corrected URL
             params: { createdAt }
         });
         console.debug('Products created after date fetched successfully:', response.data);
@@ -129,7 +128,7 @@ export const getProductsCreatedAfter = async (createdAt) => {
 // Get products updated before a specific date
 export const getProductsUpdatedBefore = async (updatedAt) => {
     try {
-        const response = await axiosInstance.get(BASE_URL+`/updated-before`, {
+        const response = await axiosInstance.get(`/product/updated-before`, {  // Corrected URL
             params: { updatedAt }
         });
         console.debug('Products updated before date fetched successfully:', response.data);
