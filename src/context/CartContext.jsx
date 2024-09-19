@@ -22,6 +22,7 @@ export const CartProvider = ({ children }) => { // children is passed as prop
 
       try {
         await createCartItem(newItem);
+        console.error("CartItem created!");
       } catch (error) {
         console.error("Failed to save cart item to the database:", error);
       }

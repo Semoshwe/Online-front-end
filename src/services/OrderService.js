@@ -130,7 +130,7 @@ export const findOrdersByTotalPriceGreaterThan = async (totalPrice) => {
     try {
         const response = await axiosInstance.get(`/order/total-price/${totalPrice}`);
         console.debug('Orders by total price fetched successfully:', response.data);
-        return response.data;
+        return response;
     } catch (error) {
         handleError(error, 'fetching orders by total price');
     }
@@ -157,10 +157,12 @@ export const findOrdersByOrderItemsID = async (orderItemsID) => {
  */
 export const deleteOrderByID = async (orderID) => {
     try {
-        await axiosInstance.delete(`/order/delete/${orderID}`);
+         await axiosInstance.delete(`/order/delete/${orderID}`);
         console.debug('Order deleted successfully');
+        return true; // Explicitly returning true for success
     } catch (error) {
         handleError(error, 'deleting order');
+        return false; // Returning false on failure
     }
 };
 

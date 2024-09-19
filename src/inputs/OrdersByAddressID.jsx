@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -12,19 +13,16 @@ import IconButton from '@mui/material/IconButton';
 import Avatar from '@mui/material/Avatar';
 import FolderIcon from '@mui/icons-material/Folder';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { findOrdersByAddressID } from '../services/OrderService';
-import { findOrderItemsByOrderID } from '../services/OrderItemService';
+import CircularProgress from '@mui/material/CircularProgress'; // Import the spinner
+import { findOrdersByAddressID, deleteOrderByID } from '../services/OrderService';
 
-// Initial state for the reducer
 const initialState = {
   addressID: '',
   rows: [],
-  orderItems: [],
   error: null,
   loading: false,
 };
 
-// Reducer function to manage states
 function ordersReducer(state, action) {
   switch (action.type) {
     case 'SET_ADDRESS_ID':
@@ -33,8 +31,6 @@ function ordersReducer(state, action) {
       return { ...state, rows: action.payload, error: null, loading: false };
     case 'FETCH_ORDERS_ERROR':
       return { ...state, rows: [], error: action.payload, loading: false };
-    case 'FETCH_ORDER_ITEMS_SUCCESS':
-      return { ...state, orderItems: action.payload, error: null, loading: false };
     case 'SET_LOADING':
       return { ...state, loading: true };
     default:
@@ -44,7 +40,8 @@ function ordersReducer(state, action) {
 
 export default function OrdersByAddressID() {
   const [state, dispatch] = React.useReducer(ordersReducer, initialState);
-  const { addressID, rows, orderItems, error, loading } = state;
+  const { addressID, rows, error, loading } = state;
+  const navigate = useNavigate();
 
   const handleFetchOrders = async () => {
     dispatch({ type: 'SET_LOADING' });
@@ -60,13 +57,20 @@ export default function OrdersByAddressID() {
     }
   };
 
-  const handleFetchOrderItems = async (orderID) => {
+  const handleDeleteOrders = async (orderID) => {
     dispatch({ type: 'SET_LOADING' });
     try {
-      const items = await findOrderItemsByOrderID(orderID);
-      dispatch({ type: 'FETCH_ORDER_ITEMS_SUCCESS', payload: items });
+      const deleted = await deleteOrderByID(orderID);
+      if (deleted) {
+        const updatedRows = rows.filter(row => row.id !== orderID);
+        dispatch({ type: 'FETCH_ORDERS_SUCCESS', payload: updatedRows });
+        alert(`Order ID ${orderID} has been deleted successfully.`);
+      } else {
+        alert(`Failed to delete order ID ${orderID}.`);
+      }
     } catch (error) {
-      console.error('Error fetching order items: ', error);
+      console.error('Error deleting order: ', error);
+      alert(`Error deleting order ID ${orderID}: ${error.message}`);
     }
   };
 
@@ -74,82 +78,84 @@ export default function OrdersByAddressID() {
     dispatch({ type: 'SET_ADDRESS_ID', payload: event.target.value });
   };
 
-  const generateOrderList = () => {
-    return rows.map((row, index) => (
-      <ListItem
-        key={index}
-        secondaryAction={
-          <IconButton edge="end" aria-label="delete">
-            <DeleteIcon />
-          </IconButton>
-        }
-      >
-        <ListItemAvatar>
-          <Avatar
-            sx={{
-              bgcolor: 'primary.main',
-              '&:hover': { bgcolor: 'secondary.main' },
-              cursor: 'pointer',
-            }}
-            onClick={() => handleFetchOrderItems(row.id)} // Fetch order items on click
-          >
-            <FolderIcon />
-          </Avatar>
-        </ListItemAvatar>
-        <ListItemText
-          primary={`Order ID: ${row.id}, Total Price: ${row.totalPrice}`}
-          secondary={`Order Date: ${row.orderDate}, Address ID: ${row.addressID}`}
-        />
-      </ListItem>
-    ));
+  const handleOrderSelect = (orderID) => {
+    navigate(`/orders/${orderID}/items`);
+  };
+
+  const generate = () => {
+    return rows.length > 0 ? (
+      rows.map((row, index) => (
+        <ListItem
+          key={index}
+          secondaryAction={
+            <IconButton
+              sx={{
+                bgcolor: 'info.main',
+                '&:hover': { bgcolor: 'error.main' },
+                cursor: 'pointer',
+              }}
+              onClick={() => handleDeleteOrders(row.id)}
+            >
+              <DeleteIcon />
+            </IconButton>
+          }
+        >
+          <ListItemAvatar>
+            <Avatar
+              sx={{
+                bgcolor: 'primary.main',
+                '&:hover': { bgcolor: 'secondary.main' },
+                cursor: 'pointer',
+              }}
+              onClick={() => handleOrderSelect(row.id)}
+            >
+              <FolderIcon />
+            </Avatar>
+          </ListItemAvatar>
+          <ListItemText
+            primary={`Order ID: ${row.id}, Total Price: ${row.totalPrice}`}
+            secondary={`Order Date: ${row.orderDate}, Address ID: ${row.addressID}`}
+          />
+        </ListItem>
+      ))
+    ) : (
+      <Typography sx={{ mt: 4 }} variant="body1" color="textSecondary">
+        No orders found for this address ID.
+      </Typography>
+    );
   };
 
   return (
-    <Box sx={{ width: '100%', padding: 2 }}>
+    <Box sx={{ width: '100%' }}>
       <h2>Orders by Address ID</h2>
       <TextField
         label="Address ID"
         value={addressID}
         onChange={handleAddressIDChange}
         margin="normal"
-        variant="outlined"
+        disabled={loading} // Disable input while loading
       />
       <Button
         variant="contained"
-        color="primary"
-        onClick={handleFetchOrders}
         sx={{ width: 250, height: 56, margin: 2 }}
-        disabled={!addressID || loading} // Disable if loading or addressID is empty
+        onClick={handleFetchOrders}
+        disabled={!addressID || loading} // Disable button during loading
       >
         {loading ? 'Loading...' : 'Fetch Orders'}
       </Button>
-      {error && (
-        <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>
-      )}
-
-      <Grid item xs={12} md={6}>
-        <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-          Orders List
-        </Typography>
-        <List dense>{generateOrderList()}</List>
-      </Grid>
-
-      {/* Display Order Items when an order is clicked */}
-      {orderItems.length > 0 && (
-        <Box>
-          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
-            Order Items
-          </Typography>
-          <List dense>
-            {orderItems.map((item, index) => (
-              <ListItem key={index}>
-                <ListItemText
-                  primary={`Item ID: ${item.id}, Name: ${item.productName}, Quantity: ${item.quantity}`}
-                />
-              </ListItem>
-            ))}
-          </List>
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+          <CircularProgress /> {/* Display loading spinner */}
         </Box>
+      )}
+      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {!loading && (
+        <Grid item xs={12} md={6}>
+          <Typography sx={{ mt: 4, mb: 2 }} variant="h6" component="div">
+            Orders List
+          </Typography>
+          <List dense>{generate()}</List>
+        </Grid>
       )}
     </Box>
   );

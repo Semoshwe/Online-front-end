@@ -59,7 +59,7 @@ export default function ProductGetAll() {
                             <CardMedia
                                 component="img"
                                 height="500"
-                                image={product.image}
+                                image={product.images?.imageUrl1}
                                 alt={product.name}
                             />
                             <CardContent>
@@ -86,9 +86,6 @@ export default function ProductGetAll() {
                                 </Typography>
                                 <Typography variant="h5" >
                                     Date updated: {product.updatedAt}
-                                </Typography>
-                                <Typography variant="h5" >
-                                    Date updated: {product.imageUrl}
                                 </Typography>
                             </CardContent>
 

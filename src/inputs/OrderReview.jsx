@@ -27,7 +27,7 @@ function OrderReview({ shippingDetails }) {
     const orderData = {
       items: cartItems,
       shipping: shippingDetails,
-      total
+      totalprice: total
     };
 
     try {
