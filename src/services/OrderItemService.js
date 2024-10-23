@@ -7,7 +7,7 @@ import axiosInstance from '../axiosConfig'; // Assuming you have an axios instan
  */
 export const createOrderItem = async (orderItem) => {
     try {
-        const response = await axiosInstance.post('/order-items', orderItem);
+        const response = await axiosInstance.post('/order-items/create', orderItem);
         console.debug('Order item created successfully:', response.data);
         return response.data;
     } catch (error) {

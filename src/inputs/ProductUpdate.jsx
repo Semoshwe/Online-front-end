@@ -1,11 +1,21 @@
-// import * as React from 'react';
+import React, { Component } from 'react';
+import { styled } from '@mui/material/styles';
+import { Container, TextField, Button, Typography, Box, Paper, IconButton, Grid, Divider } from '@mui/material';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera'; // Import Icon for upload button
+import { uploadFileToS3 } from "../services/S3Service.js";
 
-import Box from "@mui/material/Box";
-import TextField from "@mui/material/TextField";
-import {Button, Container, Paper, Typography} from "@mui/material";
-import {Component} from "react";
-// import * as React from "react";
-class ProductUpdate extends Component{
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+    ...theme.applyStyles('dark', {
+        backgroundColor: '#1A2027',
+    }),
+}));
+
+class ProductUpdate extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -17,8 +27,10 @@ class ProductUpdate extends Component{
             categoryId: '',
             createdAt: '',
             updatedAt: '',
-            imagePath: '',
-            successMessage: ''
+            imageFiles: [],
+            imagePreviewUrls: [],
+            successMessage: '',
+            errorMessage: ''
         };
     }
 
@@ -27,41 +39,65 @@ class ProductUpdate extends Component{
         this.setState({ [name]: value });
     };
 
-    handleSubmit = (event) => {
+    handleSubmit = async (event) => {
         event.preventDefault();
-        const { productId, name, description, price, stock, categoryId, createdAt, updatedAt, imagePath} = this.state;
+        const { name, description, price, stock, categoryId, imageFiles } = this.state;
 
-        fetch('http://localhost:8080/store/product/update/{id}', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                productId,
+        try {
+            let imagePaths = {};
+
+            if (imageFiles.length > 0) {
+                for (let i = 0; i < imageFiles.length; i++) {
+                    const uploadedImageUrl = await uploadFileToS3(imageFiles[i]);
+                    imagePaths[`imageUrl${i + 1}`] = uploadedImageUrl;
+                }
+            } else {
+                throw new Error('Please select up to 4 images to upload.');
+            }
+
+            const currentDateTime = new Date().toISOString();
+
+            const productData = {
+                productId: null,
                 name,
                 description,
-                price,
-                stock,
+                price: parseFloat(price),
+                stock: parseInt(stock, 10),
                 categoryId,
-                createdAt,
-                updatedAt,
-                imagePath
-            })
-        })
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                }
-                return response.json().then(err => { throw new Error(err.message || 'Network response was not ok.') });
-            })
-            .then(data => {
-                console.log('Success:', data);
-                this.setState({ successMessage: 'Product updated successfully!' });
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                this.setState({ successMessage: `Failed to update product: ${error.message}` });
+                createdAt: currentDateTime,
+                updatedAt: currentDateTime,
+                images: imagePaths
+            };
+
+            const response = await fetch('http://localhost:8080/shopping_store/product/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(productData)
             });
+
+            if (response.ok) {
+                const data = await response.json();
+                this.setState({ successMessage: 'Product updated successfully!', errorMessage: '' });
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Network response was not ok.');
+            }
+        } catch (error) {
+            this.setState({ successMessage: '', errorMessage: `Failed to update product: ${error.message}` });
+        }
+    };
+
+    fileSelectHandler = (event) => {
+        const files = Array.from(event.target.files);
+        if (files.length > 4) {
+            this.setState({ errorMessage: 'You can upload a maximum of 4 images.', imageFiles: [], imagePreviewUrls: [] });
+            return;
+        }
+
+        const imagePreviewUrls = files.map(file => URL.createObjectURL(file));
+        this.setState({ imageFiles: files, imagePreviewUrls });
     };
 
     render() {
@@ -72,6 +108,37 @@ class ProductUpdate extends Component{
                 </Typography>
                 <Paper elevation={1} sx={{ p: 3, mb: 1 }}>
                     <Box component="form" noValidate autoComplete="off" onSubmit={this.handleSubmit}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Typography variant="h6" gutterBottom>
+                                Upload Product Images (Max 4)
+                            </Typography>
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <IconButton
+                                    color="primary"
+                                    aria-label="upload images"
+                                    component="label"
+                                >
+                                    <input
+                                        type="file"
+                                        hidden
+                                        accept="image/*"
+                                        onChange={this.fileSelectHandler}
+                                        multiple
+                                    />
+                                    <PhotoCameraIcon />
+                                </IconButton>
+                            </Box>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mt: 2 }}>
+                                {this.state.imagePreviewUrls.map((url, index) => (
+                                    <img
+                                        key={index}
+                                        src={url}
+                                        alt={`Product Preview ${index + 1}`}
+                                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                    />
+                                ))}
+                            </Box>
+                        </Box>
                         <TextField
                             fullWidth
                             label="Product ID"
@@ -105,6 +172,7 @@ class ProductUpdate extends Component{
                             variant="outlined"
                             margin="normal"
                             name="price"
+                            type="number"
                             value={this.state.price}
                             onChange={this.handleInputChange}
                         />
@@ -114,6 +182,7 @@ class ProductUpdate extends Component{
                             variant="outlined"
                             margin="normal"
                             name="stock"
+                            type="number"
                             value={this.state.stock}
                             onChange={this.handleInputChange}
                         />
@@ -140,17 +209,8 @@ class ProductUpdate extends Component{
                             label="Updated date"
                             variant="outlined"
                             margin="normal"
-                            name="updatedAt"
+                            name="updatedAfter"
                             value={this.state.updatedAt}
-                            onChange={this.handleInputChange}
-                        />
-                        <TextField
-                            fullWidth
-                            label="Image path"
-                            variant="outlined"
-                            margin="normal"
-                            name="imagePath"
-                            value={this.state.imagePath}
                             onChange={this.handleInputChange}
                         />
                         <Button
@@ -168,9 +228,33 @@ class ProductUpdate extends Component{
                         {this.state.successMessage}
                     </Typography>
                 )}
+                {this.state.errorMessage && (
+                    <Typography variant="body1" color="error.main">
+                        {this.state.errorMessage}
+                    </Typography>
+                )}
             </Container>
         );
     }
 }
 
-export  default ProductUpdate;
+export default function CSSGrid() {
+    return (
+        <Box sx={{ width: 1 }}>
+            <Box sx={{ display: 'grid', gap: 1 }}>
+                <Box sx={{ gridColumn: 'span 8' }}>
+                    <Grid container direction="column" sx={{ justifyContent: 'center' }}>
+                        <ProductUpdate />
+                        <Grid container spacing={1} sx={1}>
+                            {[0, 1, 2].map((value) => (
+                                <Grid key={value} item>
+                                    <Item />
+                                </Grid>
+                            ))}
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Box>
+        </Box>
+    );
+}

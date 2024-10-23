@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import  { useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -37,7 +37,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 function DrawerComponent({ open, handleDrawerClose }) {
     const theme = useTheme();
     const navigate = useNavigate();
-    const { currentUser, logout } = useAuth();  // Accessing currentUser and logout from AuthContext
+    const { currentUser, logout } = useAuth();  // Renamed user to currentUser
     const drawerRef = useRef(null);
 
     const getInitials = (firstName, lastName) => {

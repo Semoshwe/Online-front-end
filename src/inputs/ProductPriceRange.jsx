@@ -38,7 +38,7 @@ export default function ProductPriceRange() {
         <div>
             <Box>
                 {/* Slider for price range */}
-                <Box sx={{ width: '90%', padding: 2, margin: 2 }}>
+                <Box sx={{ width: '50%', padding: 2, margin: 2 }}>
                     <Typography variant="h4">Price between</Typography>
                     <Slider
                         value={value} // Bind slider value to state

@@ -61,12 +61,18 @@ function ProductListingPage() {
                       alt={product.name}
                   />
                   <CardContent>
-                    <Typography variant="h5" component="div">
+                    <Typography variant="h5" textAlign="center" component="div">
                       {product.name}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" textAlign="center">
                       {product.description}
                     </Typography>
+                      <Typography variant="body2" textAlign="center">
+                          R{product.price}
+                      </Typography>
+                      <Typography variant="body2" textAlign="center">
+                          Stock: {product.stock}
+                      </Typography>
                   </CardContent>
                   <CardActions>
                     <Button component={Link} to={`/product-detail/${product.productId}`} variant="contained" color="primary">

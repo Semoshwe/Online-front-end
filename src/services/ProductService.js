@@ -152,9 +152,22 @@ export const getProductsUpdatedBefore = async (updatedAt) => {
     }
 };
 
+// export const searchProducts = async (keyWord) => {
+//     try {
+//         const response = await axiosInstance.get('/product/search', {
+//             params: { keyword: keyWord } // Using the params object to pass query parameter
+//         });
+//         console.debug('Searching products with keyword:', keyWord, 'fetched successfully:', response.data);
+//         return response.data;
+//     } catch (error) {
+//         handleAxiosError(error, `searching for products with keyword: ${keyWord}`);
+//         throw error;
+//     }
+// };
+
 export const searchProducts = async (keyWord) => {
     try {
-        const response = await axiosInstance.get(`/product/search?keyword=${keyWord}`, {
+        const response = await axiosInstance.get(`/product/search?keyWord=${keyWord}`, {
             params: { keyWord }
         });
         console.debug('Searching products with key word: '+ keyWord + 'fetched successfully:', response.data);

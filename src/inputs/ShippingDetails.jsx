@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button'; // Import Button
 import OrderReview from './OrderReview'; // Import OrderReview component
 import PropTypes from 'prop-types';
-import { createAddress, getAddressByPhoneNumber } from '../services/AddressService'; // Import address service to save the address
+import { createAddress, getAddressByAddressLine1 } from '../services/AddressService'; // Import address service to save the address
 
 function ShippingDetails() {
   const [shippingDetails, setShippingDetails] = useState({
@@ -32,39 +32,43 @@ function ShippingDetails() {
 
   const handleSave = async () => {
     try {
-      // Save the address and await the response
-      console.log("Saving address with details:", shippingDetails); // Log shipping details
-      await createAddress(shippingDetails);
-      console.log("Address saved successfully!");
-  
-      // Get the addressId by phone number
-      console.log("Fetching address by phone number:", shippingDetails.phoneNumber);
-      const response = await getAddressByPhoneNumber(shippingDetails.phoneNumber); // Await the response
-      console.log("Response received from getAddressByPhoneNumber:", response); // Log full response
-  
-      // Check if the response contains data
-      if (response && response.data && response.data.length > 0) {
-        const addressList = response.data;
-        const firstAddress = addressList[0]; // Assuming you want to use the first address from the list
-  
-        console.log("First address found:", firstAddress); // Log first address details
-  
-        if (firstAddress && firstAddress.addressId) {
-          setAddressId(firstAddress.addressId); // Get the addressId from the first address
-          setIsSaved(true); // Set the button to "Saved" state
-          console.log("Address ID set:", firstAddress.addressId); // Log addressId
+        // Save the address and await the response
+        console.log("Saving address with details:", shippingDetails); 
+        await createAddress(shippingDetails);
+        console.log("Address saved successfully!");
+
+        // Fetch the address using the addressLine1 after saving
+        console.log("Fetching address by AddressLine1:", shippingDetails.addressLine1);
+        const response = await getAddressByAddressLine1(shippingDetails.addressLine1); 
+        console.log("Response received from getAddressByAddressLine1:", response);
+
+        // Validate the response structure
+        if (response && Array.isArray(response)) {
+            // If response is an array and has addresses
+            if (response.length > 0) {
+                const firstAddress = response[0]; // Get the first address
+                console.log("First address found:", firstAddress);
+
+                if (firstAddress.id) {
+                    setAddressId(firstAddress.id); // Set addressId
+                    setIsSaved(true); // Mark as saved
+                    console.log("Address ID set:", firstAddress.id);
+                } else {
+                    throw new Error("Invalid address structure or addressId not found");
+                }
+            } else {
+                console.warn("No addresses found for this addressLine1:", shippingDetails.addressLine1);
+                throw new Error("No addresses found for this addressLine1");
+            }
         } else {
-          throw new Error("Invalid response structure or addressId not found");
+            throw new Error("Invalid response structure or response is not an array.");
         }
-      } else {
-        console.warn("No addresses found for this phone number", shippingDetails.phoneNumber); // Log a warning if no address is found
-        throw new Error("No addresses found for this phone number");
-      }
     } catch (error) {
-      console.error("Error saving shipping details:", error);
-      setErrorMessage("Error saving details. Please try again."); // Display an error message
+        console.error("Error saving shipping details:", error);
+        setErrorMessage("Error saving details. Please try again.");
     }
-  };
+};
+
   
   
 

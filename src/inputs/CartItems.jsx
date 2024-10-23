@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'; 
+import { useContext, useState } from 'react'; 
 import Typography from '@mui/material/Typography';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -8,77 +8,73 @@ import CartContext from '../context/CartContext';
 import { createCartItem, getCartItemsByCartID } from '../services/CartItemService'; 
 import { getCartsByUserID } from '../services/CartService'; 
 import { useAuth } from '../context/AuthContext'; 
+import { useQuery, useMutation, useQueryClient } from 'react-query';
 
 function CartItems() {
   const { cartItems, removeItem } = useContext(CartContext);
   const { currentUser } = useAuth(); 
-  const [userCartItems, setUserCartItems] = useState([]); // State for user's cart items
   const [cartID, setCartID] = useState(null); // State for the cart ID
+  const queryClient = useQueryClient(); // Create a query client instance
 
-  // Step 1: Fetch the cart for the user and set the cart ID (Executed on user login)
-  useEffect(() => {
-    const fetchCart = async () => {
-      if (currentUser && currentUser.id) {
-        try {
-          const carts = await getCartsByUserID(currentUser.id); 
-          if (carts && carts.length > 0) {
-            const cart = carts[0]; // Assume only one cart per user
-            setCartID(cart.id);
-            console.log("cartID set!"); 
-          } else {
-            console.warn('No carts found for this user.');
-          }
-        } catch (error) {
-          console.error('Error fetching cart:', error);
+  // Step 1: Fetch the cart for the user (using React Query instead of useEffect)
+  useQuery(
+    ['userCarts', currentUser?.userID], // Unique key based on user ID
+    () => getCartsByUserID(currentUser.userID), // Fetch carts by user ID
+    {
+      enabled: !!currentUser, // Only run the query if the user exists
+      onSuccess: (data) => {
+        if (data.length > 0) {
+          setCartID(data[0].id); // Assume only one cart per user
         }
+      },
+      onError: (error) => {
+        console.error('Error fetching cart:', error);
       }
-    };
+    }
+  );
 
-    fetchCart(); // Fetch cart when the user logs in
-  }, [currentUser]);
-
-  // Step 2: Fetch cart items by cart ID (Executed when cartID is available)
-  useEffect(() => {
-    const fetchCartItems = async () => {
-      if (cartID) {
-        try {
-          const cartItemsFromDB = await getCartItemsByCartID(cartID); 
-          setUserCartItems(cartItemsFromDB); // Set fetched cart items
-          console.log("cartItems set!");
-        } catch (error) {
-          console.error('Error fetching cart items:', error);
-        }
+  // Step 2: Fetch cart items based on cartID
+  const { data: userCartItems = [], isLoading: itemsLoading } = useQuery(
+    ['cartItems', cartID], 
+    () => getCartItemsByCartID(cartID), 
+    {
+      enabled: !!cartID, // Only fetch if cartID exists
+      onError: (error) => {
+        console.error('Error fetching cart items:', error);
       }
-    };
+    }
+  );
 
-    fetchCartItems(); // Fetch items when cartID is set
-  }, [cartID]);
-
-  // Step 3: Store new cart items in the CartItem table (Executed only when new items are added)
-  useEffect(() => {
-    const addItemsToDB = async () => {
-      if (!cartID || cartItems.length === 0) return; // If no cartID or cartItems, return early
-
-      try {
-        for (const item of cartItems) {
-          const cartItem = {
-            productId: item.productId,
-            price: item.price,
-            cartId: cartID, 
-          };
-
-          await createCartItem(cartItem); // Add item to DB
-          console.log("cartitem stored successfully");
-        }
-      } catch (error) {
+  // Step 3: Store new cart items in the CartItem table (using useMutation)
+  const mutation = useMutation(
+    (newCartItem) => createCartItem(newCartItem),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['cartItems', cartID]); // Refresh cart items after mutation
+        console.log("Cart item stored successfully");
+      },
+      onError: (error) => {
         console.error("Error adding items to the database:", error);
       }
-    };
+    }
+  );
 
-    addItemsToDB(); // Add new cart items when they are added to the cart
-  }, [cartItems, cartID]); // Depend on cartItems and cartID to run only when they change
+  // Adding items to the cart database (executed manually when needed)
+  const addItemsToDB = () => {
+    if (!cartID || cartItems.length === 0) return;
 
-  // Combine userCartItems and cartItems for display
+    cartItems.forEach((item) => {
+      const newCartItem = {
+        productId: item.productId,
+        price: item.price,
+        cartId: cartID,
+      };
+
+      mutation.mutate(newCartItem); // Trigger mutation to save item to the DB
+    });
+  };
+
+  // Combine userCartItems from DB and cartItems from CartContext
   const combinedCartItems = [...userCartItems, ...cartItems];
 
   return (
@@ -86,39 +82,48 @@ function CartItems() {
       <Typography variant="h5" gutterBottom>
         Items in Your Cart
       </Typography>
-      <List>
-        {combinedCartItems.length === 0 ? (  // Check if there are any items
-          <Typography>No items in your cart.</Typography>
-        ) : (
-          combinedCartItems.map((item) => (  // Map through combined items
-            <ListItem key={item.productId}>
-              <img
-                src={item.image}
-                alt={item.name}
-                style={{ width: '50px', height: '50px', marginRight: '15px' }}
-              />
-              <ListItemText
-                primary={`${item.name} (x${item.quantity})`}
-                secondary={`Price: R${item.price * item.quantity}`} 
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => {
-                  const confirmDelete = window.confirm("Are you sure you want to remove this item?");
-                  if (confirmDelete) {
-                    removeItem(item.productId); // Call removeItem with the correct productId
-                  }
-                }}
-              >
-                Remove
-              </Button>
-            </ListItem>
-          ))
-        )}
-      </List>
+      {itemsLoading ? (
+        <Typography>Loading...</Typography>
+      ) : (
+        <List>
+          {combinedCartItems.length === 0 ? (
+            <Typography>No items in your cart.</Typography>
+          ) : (
+            combinedCartItems.map((item) => (
+              <ListItem key={item.productId}>
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={{ width: '50px', height: '50px', marginRight: '15px' }}
+                />
+                <ListItemText
+                  primary={`${item.name} (x${item.quantity})`}
+                  secondary={`Price: R${item.price * item.quantity}`} 
+                />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => {
+                    const confirmDelete = window.confirm("Are you sure you want to remove this item?");
+                    if (confirmDelete) {
+                      removeItem(item.productId); // Remove item from cart
+                    }
+                  }}
+                >
+                  Remove
+                </Button>
+              </ListItem>
+            ))
+          )}
+        </List>
+      )}
+
+      {/* Button to trigger saving the cart items to the database */}
+      <Button variant="contained" onClick={addItemsToDB}>
+        Save Cart Items
+      </Button>
     </div>
   );
-}  
+}
 
 export default CartItems;

@@ -127,10 +127,10 @@ function HomePage({ currentUser }) {
                                     <Typography variant="h5" component="div">
                                         {product.name}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2">
                                         {product.description}
                                     </Typography>
-                                    <Typography variant="h6">
+                                    <Typography variant="body2">
                                         Price: R{product.price}
                                     </Typography>
                                     <Typography variant="body2">
