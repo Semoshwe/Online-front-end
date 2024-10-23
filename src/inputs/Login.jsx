@@ -1,82 +1,160 @@
 import * as React from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Updated from useHistory
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { createUser } from '../services/UserService'; // Adjust the path if needed
-import { useState } from 'react';
-import { useHistory } from 'react-router-dom'; // For redirecting after login
+import Alert from '@mui/material/Alert';
+import CircularProgress from '@mui/material/CircularProgress';
+import Typography from '@mui/material/Typography';
+import Paper from '@mui/material/Paper';
+import Container from '@mui/material/Container';
+import { loginUser } from '../services/AuthenticationService';
 
 export default function LoginPage() {
-  const [loginData, setLoginData] = useState({
-    username: '',
+  const [formData, setFormData] = useState({
+    email: '',
     password: ''
   });
   const [error, setError] = useState(null);
-  const history = useHistory(); // Hook for programmatic navigation
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Updated from useHistory
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
-    setLoginData({
-      ...loginData,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
-    });
+    }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setLoading(true);
+    setError(null);
+
     try {
-      const response = await loginUser(loginData); // Use your login endpoint
-      console.log('Login successful:', response);
-      // Redirect or update state on successful login
-      history.push('/'); // Example redirect
+      // Create the user object that matches your backend expectation
+      const userLoginData = {
+        email: formData.email,
+        password: formData.password,
+        // Include other required fields with null values
+        firstName: null,
+        lastName: null,
+        phoneNumber: null,
+        birthDate: null,
+        role: null
+      };
+
+      const response = await loginUser(userLoginData);
+      console.debug('Login successful:', response);
+      
+      // Store the authentication token if present in response
+      if (response.token) {
+        localStorage.setItem('token', response.token);
+      }
+
+      // Redirect to dashboard or home page
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
-      setError('Error logging in: ' + error.message);
+      setError(
+        error.response?.data?.message || 
+        error.message || 
+        'An error occurred during login. Please try again.'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Box sx={{ width: '100vh', padding: 2 }}>
-      <h2>Login</h2>
+    <Container component="main" maxWidth="xs">
       <Box
-        component="form"
-        onSubmit={handleSubmit}
-        noValidate
-        sx={{ mt: 1 }}
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        }}
       >
-        <TextField
-          name="username"
-          label="Username"
-          value={loginData.username}
-          onChange={handleInputChange}
-          margin="normal"
-          variant="outlined"
-          fullWidth
-          required
-        />
-        <TextField
-          name="password"
-          type="password"
-          label="Password"
-          value={loginData.password}
-          onChange={handleInputChange}
-          margin="normal"
-          variant="outlined"
-          fullWidth
-          required
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          sx={{ width: 250, height: 56, margin: 2 }}
+        <Paper
+          elevation={3}
+          sx={{
+            padding: 4,
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
         >
-          Sign In
-        </Button>
-        {error && (
-          <div style={{ color: 'red', marginBottom: 10 }}>{error}</div>
-        )}
+          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
+            Sign In
+          </Typography>
+
+          {error && (
+            <Alert 
+              severity="error" 
+              sx={{ width: '100%', mb: 2 }}
+              onClose={() => setError(null)}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+            noValidate
+            sx={{ width: '100%' }}
+          >
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
+              label="Email Address"
+              name="email"
+              autoComplete="email"
+              autoFocus
+              value={formData.email}
+              onChange={handleInputChange}
+              error={Boolean(error)}
+              disabled={loading}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Password"
+              type="password"
+              id="password"
+              autoComplete="current-password"
+              value={formData.password}
+              onChange={handleInputChange}
+              error={Boolean(error)}
+              disabled={loading}
+            />
+            
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2, height: 56 }}
+              disabled={loading || !formData.email || !formData.password}
+            >
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+          </Box>
+        </Paper>
       </Box>
-    </Box>
+    </Container>
   );
 }

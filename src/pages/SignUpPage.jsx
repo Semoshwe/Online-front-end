@@ -1,13 +1,8 @@
 import { useState } from 'react';
-import { Avatar, Grid, Paper, Typography, TextField, Button } from "@mui/material";
+import { Avatar, Grid, Paper, Typography, TextField, Button, MenuItem, FormControl, InputLabel, Select } from "@mui/material";
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import { useNavigate } from 'react-router-dom';
-import { createUser } from '../services/userService';
+import { registerUser } from '../services/AuthenticationService';
 
 const SignUp = () => {
   const paperStyle = { padding: '30px 20px', width: 300, margin: "20px auto" };
@@ -18,15 +13,17 @@ const SignUp = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    firstName: '', // Adjusted to match server-side expectations
-    lastName: '', // Adjusted to match server-side expectations
+
+    firstName: '', 
+    lastName: '', 
+
     email: '',
     phoneNumber: '',
     password: '',
     confirmPassword: '',
     avatar: 'default-avatar.png',
-    birthDate: '', // Date should be in yyyy-MM-dd format
-    roles: ['USER'] // Adjusted to match server-side expectations
+    birthDate: '', 
+    role: 'USER'  // Default role is USER
   });
 
   const [error, setError] = useState(null);
@@ -41,21 +38,24 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
+    
     setError(null);
-
+    
     try {
-      console.log('Sending data:', formData); // Log form data
-      await createUser(formData);
+      const response = await registerUser(formData);
+      console.log('Registration successful:', response);
       navigate('/login');
+
     } catch (error) {
-      console.error('Error creating user:', error);
-      setError('Failed to create user. Please try again.');
+      console.error('Registration failed:', error);
+      setError(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -70,24 +70,39 @@ const SignUp = () => {
           <Typography variant="body2">Please fill in to sign up</Typography>
         </Grid>
         <form onSubmit={handleSubmit}>
+
+        <TextField
+            fullWidth
+            label="avatar"
+            placeholder="Enter your avatar"
+            name="avatar"  
+            value={formData.avatar}
+            onChange={handleChange}
+            sx={{ mb: 2 }}
+            required
+          />
+
           <TextField
             fullWidth
             label="First Name"
             placeholder="Enter your first name"
-            name="firstName" // Adjusted to match server-side expectations
-            value={formData.firstName} // Adjusted to match server-side expectations
+            name="firstName"
+            value={formData.firstName}
             onChange={handleChange}
             required
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
             label="Last Name"
             placeholder="Enter your last name"
-            name="lastName" // Adjusted to match server-side expectations
-            value={formData.lastName} // Adjusted to match server-side expectations
+            name="lastName"
+            value={formData.lastName}
             onChange={handleChange}
+            sx={{ mb: 2 }}
             required
           />
+
           <TextField
             fullWidth
             label="Email"
@@ -95,6 +110,7 @@ const SignUp = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            sx={{ mb: 2 }}
             required
           />
           <TextField
@@ -104,6 +120,7 @@ const SignUp = () => {
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
@@ -114,6 +131,7 @@ const SignUp = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
@@ -124,6 +142,7 @@ const SignUp = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
             required
+            sx={{ mb: 2 }}
           />
           <TextField
             fullWidth
@@ -134,19 +153,24 @@ const SignUp = () => {
             onChange={handleChange}
             InputLabelProps={{ shrink: true }}
             required
+            sx={{ mb: 2 }}
           />
-          <FormControl style={marginTop}>
-            <FormLabel>Role</FormLabel>
-            <RadioGroup
-              name="roles"
-              value={formData.roles[0]} // Assuming single role is selected
-              onChange={(e) => setFormData({ ...formData, roles: [e.target.value] })}
-              style={{ display: 'initial' }}
+
+          {/* Dropdown for Role Selection */}
+          <FormControl fullWidth style={marginTop}>
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
             >
-              <FormControlLabel value="USER" control={<Radio />} label="User" />
-              <FormControlLabel value="ADMIN" control={<Radio />} label="Admin" />
-            </RadioGroup>
+              <MenuItem value="USER">User</MenuItem>
+              <MenuItem value="ADMIN">Admin</MenuItem>
+            </Select>
           </FormControl>
+
           <Button
             type="submit"
             variant="contained"

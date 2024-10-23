@@ -1,28 +1,34 @@
-// src/pages/LoginPage.js
 import { useState } from 'react';
-import { Box } from '@mui/system';
-import { Avatar, Container, FormControlLabel, Link, TextField, Typography, Paper, Button, Grid, Checkbox } from "@mui/material";
+import { Box, Avatar, Container, FormControlLabel, Link, TextField, 
+         Typography, Paper, Button, Grid, Checkbox, CircularProgress, Alert } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { Link as RouterLink } from "react-router-dom";
-import { useAuth } from '../context/AuthContext.jsx';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
     const [loginData, setLoginData] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const { login } = useAuth();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setLoading(true);
+        setError(null);
+        
         try {
             await login(loginData.email, loginData.password);
         } catch (error) {
-            console.error('Login error:', error);
-            alert('Error logging in: ' + error.message);
+            setError(error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setLoginData({ ...loginData, [name]: value });
+        setLoginData(prev => ({ ...prev, [name]: value }));
+        if (error) setError(null);
     };
 
     return (
@@ -39,6 +45,13 @@ const LoginPage = () => {
                 <Typography component='h1' variant="h5" sx={{ textAlign: "center" }}>
                     Sign In
                 </Typography>
+
+                {error && (
+                    <Alert severity="error" sx={{ mt: 2, mb: 2 }} onClose={() => setError(null)}>
+                        {error}
+                    </Alert>
+                )}
+
                 <Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
                         placeholder="Enter email"
@@ -49,6 +62,8 @@ const LoginPage = () => {
                         value={loginData.email}
                         onChange={handleInputChange}
                         sx={{ mb: 2 }}
+                        error={Boolean(error)}
+                        disabled={loading}
                     />
                     <TextField
                         placeholder="Enter Password"
@@ -59,13 +74,21 @@ const LoginPage = () => {
                         value={loginData.password}
                         onChange={handleInputChange}
                         sx={{ mb: 2 }}
+                        error={Boolean(error)}
+                        disabled={loading}
                     />
                     <FormControlLabel
                         control={<Checkbox value="remember" color="primary" />}
                         label="Remember me"
                     />
-                    <Button type="submit" variant="contained" fullWidth sx={{ mt: 1 }}>
-                        Sign in
+                    <Button 
+                        type="submit" 
+                        variant="contained" 
+                        fullWidth 
+                        sx={{ mt: 1 }} 
+                        disabled={loading || !loginData.email || !loginData.password}
+                    >
+                        {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign in'}
                     </Button>
                     <Grid container justifyContent='space-between' sx={{ mt: 1 }}>
                         <Grid item>
